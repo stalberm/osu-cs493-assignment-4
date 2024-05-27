@@ -39,6 +39,7 @@ const upload = multer({
  */
 router.post('/', upload.single('image'), async (req, res, next) => {
   if (req.file && validateAgainstSchema(req.body, PhotoSchema)) {
+    console.log(req.file);
     try {
       const photo = {
         contentType: req.file.mimetype,

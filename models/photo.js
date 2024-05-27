@@ -12,7 +12,7 @@ const { extractValidFields } = require('../lib/validation')
  */
 const PhotoSchema = {
   businessId: { required: true },
-  caption: { required: false }
+  caption: { required: false },
 }
 exports.PhotoSchema = PhotoSchema
 
@@ -21,7 +21,6 @@ exports.PhotoSchema = PhotoSchema
  * a Promise that resolves to the ID of the newly-created photo entry.
  */
 async function insertNewPhoto(photo) {
-  photo = extractValidFields(photo, PhotoSchema)
   photo.businessId = ObjectId(photo.businessId)
   const db = getDbReference()
   // const bucket =

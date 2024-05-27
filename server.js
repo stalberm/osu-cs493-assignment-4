@@ -22,6 +22,11 @@ app.use(express.static('public'))
  */
 app.use('/', api)
 
+app.use(
+    '/media/images',
+    express.static(`${__dirname}/api/uploads`)
+);
+
 app.use('*', function (req, res, next) {
     res.status(404).json({
         error: "Requested resource " + req.originalUrl + " does not exist"
@@ -34,11 +39,6 @@ app.use('*', (err, req, res, next) => {
         err: "An error occurred. Try again later."
     });
 });
-
-app.use(
-    '/media/images',
-    express.static(`${__dirname}/api/uploads`)
-);
 
 connectToDb(function () {
     app.listen(port, function () {
