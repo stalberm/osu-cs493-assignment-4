@@ -24,6 +24,12 @@ async function insertNewPhoto(photo) {
   photo = extractValidFields(photo, PhotoSchema)
   photo.businessId = ObjectId(photo.businessId)
   const db = getDbReference()
+  // const bucket =
+  //   new GridFSBucket(db, { bucketName: 'images' });
+  // const metadata = {
+  //   contentType: photo.contentType,
+  //   businessId: photo.businessId
+  // };
   const collection = db.collection('photos')
   const result = await collection.insertOne(photo)
   return result.insertedId
