@@ -23,11 +23,14 @@ exports.PhotoSchema = PhotoSchema
  */
 async function insertNewPhoto(photo) {
   photo.businessId = ObjectId(photo.businessId)
-  const photoFileResult = await _savePhotoFile(photo)
-  return photoFileResult
+  const photoId = await _savePhotoFile(photo)
+  return photoId
 }
 exports.insertNewPhoto = insertNewPhoto
 
+/*
+
+*/
 async function _savePhotoFile(photo) {
   return new Promise((resolve, reject) => {
     const db = getDbReference()
@@ -49,6 +52,18 @@ async function _savePhotoFile(photo) {
       });
   })
 }
+
+/*
+
+*/
+function getPhotoDownloadStreamByFilename(filename) {
+  const db = getDbReference();
+  const bucket =
+    new GridFSBucket(db, { bucketName: 'photos' });
+  return bucket.openDownloadStreamByName(filename);
+}
+exports.getPhotoDownloadStreamByFilename = getPhotoDownloadStreamByFilename;
+
 /*
  * Executes a DB query to fetch a single specified photo based on its ID.
  * Returns a Promise that resolves to an object containing the requested
@@ -57,13 +72,13 @@ async function _savePhotoFile(photo) {
  */
 async function getPhotoById(id) {
   const db = getDbReference()
-  const collection = db.collection('photos')
+  const bucket =
+    new GridFSBucket(db, { bucketName: 'photos' });
   if (!ObjectId.isValid(id)) {
     return null
   } else {
-    const results = await collection
-      .find({ _id: new ObjectId(id) })
-      .toArray()
+    const results =
+      await bucket.find({ _id: ObjectId.createFromHexString(id) }).toArray();
     return results[0]
   }
 }

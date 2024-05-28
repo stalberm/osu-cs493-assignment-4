@@ -66,8 +66,8 @@ router.post('/', upload.single('image'), async (req, res, next) => {
       res.status(201).send({
         id: id,
         links: {
-          photo: `/photos/${id}`,
-          url: `/media/photos/${id}`,
+          url: `/media/photos/${photo.filename}`,
+          contentType: photo.contentType,
           business: `/businesses/${req.body.businessId}`
         }
       })

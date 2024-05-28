@@ -3,7 +3,7 @@ const morgan = require('morgan')
 
 const api = require('./api')
 const { connectToDb } = require('./lib/mongo')
-
+const { getPhotoDownloadStreamByFilename } = require('./models/photo')
 const app = express()
 const port = process.env.PORT || 8000
 
@@ -13,7 +13,17 @@ const port = process.env.PORT || 8000
 app.use(morgan('dev'))
 
 app.use(express.json())
-app.use(express.static('public'))
+app.get('/media/photos/:filename', (req, res, next) => {
+    getPhotoDownloadStreamByFilename(req.params.filename).on('file', (file) => {
+        res.status(200).type(file.metadata.contentType);
+    }).on('error', (err) => {
+        if (err.code === 'ENOENT') {
+            next();
+        } else {
+            next(err);
+        }
+    }).pipe(res);
+});
 
 /*
  * All routes for the API are written in modules in the api/ directory.  The
@@ -22,10 +32,6 @@ app.use(express.static('public'))
  */
 app.use('/', api)
 
-app.use(
-    '/media/images',
-    express.static(`${__dirname}/api/uploads`)
-);
 
 app.use('*', function (req, res, next) {
     res.status(404).json({
