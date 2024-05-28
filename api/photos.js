@@ -4,6 +4,7 @@
 
 const { Router } = require('express')
 const crypto = require('crypto')
+const fs = require('fs');
 
 const { validateAgainstSchema } = require('../lib/validation')
 const {
@@ -14,10 +15,12 @@ const {
 
 const router = Router()
 const multer = require('multer');
+
 const imageTypes = {
   'image/jpeg': 'jpg',
   'image/png': 'png'
 };
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: `${__dirname}/uploads`,
@@ -33,6 +36,17 @@ const upload = multer({
   }
 });
 
+function _removeUploadedFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
 /*
  * POST /photos - Route to create a new photo.
@@ -48,10 +62,12 @@ router.post('/', upload.single('image'), async (req, res, next) => {
         businessId: req.body.businessId
       };
       const id = await insertNewPhoto(photo)
+      await _removeUploadedFile(req.file);
       res.status(201).send({
         id: id,
         links: {
           photo: `/photos/${id}`,
+          url: `/media/photos/${id}`,
           business: `/businesses/${req.body.businessId}`
         }
       })
