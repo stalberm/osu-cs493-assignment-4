@@ -12,8 +12,8 @@ const fs = require('fs');
  * Schema describing required/optional fields of a photo object.
  */
 const PhotoSchema = {
-  businessId: { required: true },
-  caption: { required: false },
+    businessId: { required: true },
+    caption: { required: false },
 }
 exports.PhotoSchema = PhotoSchema
 
@@ -22,9 +22,9 @@ exports.PhotoSchema = PhotoSchema
  * a Promise that resolves to the ID of the newly-created photo entry.
  */
 async function insertNewPhoto(photo) {
-  photo.businessId = ObjectId(photo.businessId)
-  const photoId = await _savePhotoFile(photo)
-  return photoId
+    photo.businessId = ObjectId(photo.businessId)
+    const photoId = await _savePhotoFile(photo)
+    return photoId
 }
 exports.insertNewPhoto = insertNewPhoto
 
@@ -32,60 +32,37 @@ exports.insertNewPhoto = insertNewPhoto
 
 */
 async function _savePhotoFile(photo) {
-  return new Promise((resolve, reject) => {
-    const db = getDbReference()
-    const bucket =
-      new GridFSBucket(db, { bucketName: 'photos' });
-    const metadata = {
-      contentType: photo.contentType,
-      businessId: photo.businessId,
-      thumbId: photo.thumbId
-    };
-    const uploadStream = bucket.openUploadStream(
-      photo.filename,
-      { metadata: metadata }
-    );
-    fs.createReadStream(photo.path).pipe(uploadStream).on('error', (err) => {
-      reject(err);
+    return new Promise((resolve, reject) => {
+        const db = getDbReference()
+        const bucket =
+            new GridFSBucket(db, { bucketName: 'photos' });
+        const metadata = {
+            contentType: photo.contentType,
+            businessId: photo.businessId,
+            thumbId: photo.thumbId
+        };
+        const uploadStream = bucket.openUploadStream(
+            photo.filename,
+            { metadata: metadata }
+        );
+        fs.createReadStream(photo.path).pipe(uploadStream).on('error', (err) => {
+            reject(err);
+        })
+            .on('finish', (result) => {
+                resolve(result._id);
+            });
     })
-      .on('finish', (result) => {
-        resolve(result._id);
-      });
-  })
 }
 
-/*
-
-*/
-async function _savePhotoThumbFile(photo) {
-  return new Promise((resolve, reject) => {
-    const db = getDbReference()
-    const bucket =
-      new GridFSBucket(db, { bucketName: 'thumbs' });
-    const metadata = {
-      contentType: 'image/jpeg',
-    };
-    const uploadStream = bucket.openUploadStream(
-      photo.filename,
-      { metadata: metadata }
-    );
-    fs.createReadStream(photo.path).pipe(uploadStream).on('error', (err) => {
-      reject(err);
-    })
-      .on('finish', (result) => {
-        resolve(result._id);
-      });
-  })
-}
 
 /*
 
 */
 function getPhotoDownloadStreamByFilename(filename) {
-  const db = getDbReference();
-  const bucket =
-    new GridFSBucket(db, { bucketName: 'photos' });
-  return bucket.openDownloadStreamByName(filename);
+    const db = getDbReference();
+    const bucket =
+        new GridFSBucket(db, { bucketName: 'photos' });
+    return bucket.openDownloadStreamByName(filename);
 }
 exports.getPhotoDownloadStreamByFilename = getPhotoDownloadStreamByFilename;
 
@@ -93,10 +70,10 @@ exports.getPhotoDownloadStreamByFilename = getPhotoDownloadStreamByFilename;
 
 */
 function getThumbDownloadStreamByFilename(filename) {
-  const db = getDbReference();
-  const bucket =
-    new GridFSBucket(db, { bucketName: 'thumbs' });
-  return bucket.openDownloadStreamByName(filename);
+    const db = getDbReference();
+    const bucket =
+        new GridFSBucket(db, { bucketName: 'thumbs' });
+    return bucket.openDownloadStreamByName(filename);
 }
 exports.getThumbDownloadStreamByFilename = getThumbDownloadStreamByFilename;
 
@@ -107,15 +84,15 @@ exports.getThumbDownloadStreamByFilename = getThumbDownloadStreamByFilename;
  * will resolve to null.
  */
 async function getPhotoById(id) {
-  const db = getDbReference()
-  const bucket =
-    new GridFSBucket(db, { bucketName: 'photos' });
-  if (!ObjectId.isValid(id)) {
-    return null
-  } else {
-    const results =
-      await bucket.find({ _id: ObjectId.createFromHexString(id) }).toArray();
-    return results[0]
-  }
+    const db = getDbReference()
+    const bucket =
+        new GridFSBucket(db, { bucketName: 'photos' });
+    if (!ObjectId.isValid(id)) {
+        return null
+    } else {
+        const results =
+            await bucket.find({ _id: ObjectId.createFromHexString(id) }).toArray();
+        return results[0]
+    }
 }
 exports.getPhotoById = getPhotoById

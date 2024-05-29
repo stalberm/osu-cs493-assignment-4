@@ -7,6 +7,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
 
   db-init:
     build: .
@@ -23,6 +24,12 @@ services:
     restart: on-failure
     command: npm run initdb
 
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   api:
     build: .
     ports:
@@ -35,4 +42,5 @@ services:
     depends_on:
       - db
       - db-init
+      - rabbit
     restart: on-failure

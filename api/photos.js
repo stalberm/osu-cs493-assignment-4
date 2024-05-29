@@ -77,11 +77,19 @@ router.post('/', upload.single('image'), async (req, res, next) => {
             setTimeout(() => { connection.close(); }, 500);
 
             await _removeUploadedFile(req.file);
+            const parts = photo.filename.split('.');
+            if (parts.length > 1) {
+                parts[parts.length - 1] = "jpg";
+            } else {
+                parts.push("jpg");
+            }
+            const thumb = parts.join('.');
             res.status(201).send({
                 id: id,
                 links: {
                     meta: `/photos/${id}`,
-                    url: `/media/photos/${photo.filename}`,
+                    photoUrl: `/media/photos/${photo.filename}`,
+                    thumbnailUrl: `/media/thumbs/${thumb}`,
                     contentType: photo.contentType,
                     business: `/businesses/${req.body.businessId}`,
                     thumb: photo.thumbId
