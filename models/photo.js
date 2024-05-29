@@ -38,7 +38,32 @@ async function _savePhotoFile(photo) {
       new GridFSBucket(db, { bucketName: 'photos' });
     const metadata = {
       contentType: photo.contentType,
-      businessId: photo.businessId
+      businessId: photo.businessId,
+      thumbId: photo.thumbId
+    };
+    const uploadStream = bucket.openUploadStream(
+      photo.filename,
+      { metadata: metadata }
+    );
+    fs.createReadStream(photo.path).pipe(uploadStream).on('error', (err) => {
+      reject(err);
+    })
+      .on('finish', (result) => {
+        resolve(result._id);
+      });
+  })
+}
+
+/*
+
+*/
+async function _savePhotoThumbFile(photo) {
+  return new Promise((resolve, reject) => {
+    const db = getDbReference()
+    const bucket =
+      new GridFSBucket(db, { bucketName: 'thumbs' });
+    const metadata = {
+      contentType: 'image/jpeg',
     };
     const uploadStream = bucket.openUploadStream(
       photo.filename,
@@ -63,6 +88,17 @@ function getPhotoDownloadStreamByFilename(filename) {
   return bucket.openDownloadStreamByName(filename);
 }
 exports.getPhotoDownloadStreamByFilename = getPhotoDownloadStreamByFilename;
+
+/*
+
+*/
+function getThumbDownloadStreamByFilename(filename) {
+  const db = getDbReference();
+  const bucket =
+    new GridFSBucket(db, { bucketName: 'thumbs' });
+  return bucket.openDownloadStreamByName(filename);
+}
+exports.getThumbDownloadStreamByFilename = getThumbDownloadStreamByFilename;
 
 /*
  * Executes a DB query to fetch a single specified photo based on its ID.

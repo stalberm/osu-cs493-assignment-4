@@ -6,6 +6,7 @@ const { Router } = require('express')
 const crypto = require('crypto')
 const fs = require('fs');
 const amqp = require('amqplib');
+const { ObjectId } = require('mongodb')
 
 const { validateAgainstSchema } = require('../lib/validation')
 const {
@@ -65,7 +66,7 @@ router.post('/', upload.single('image'), async (req, res, next) => {
                 filename: req.file.filename,
                 path: req.file.path,
                 businessId: req.body.businessId,
-                thumbId: "Placeholder"
+                thumbId: ObjectId()
             };
             const id = await insertNewPhoto(photo)
 
@@ -79,9 +80,11 @@ router.post('/', upload.single('image'), async (req, res, next) => {
             res.status(201).send({
                 id: id,
                 links: {
+                    meta: `/photos/${id}`,
                     url: `/media/photos/${photo.filename}`,
                     contentType: photo.contentType,
-                    business: `/businesses/${req.body.businessId}`
+                    business: `/businesses/${req.body.businessId}`,
+                    thumb: photo.thumbId
                 }
             })
         } catch (err) {
@@ -105,7 +108,7 @@ router.get('/:id', async (req, res, next) => {
         const photo = await getPhotoById(req.params.id)
         if (photo) {
             delete photo.path;
-            photo.url = `/media/images/${photo.filename}`;
+            photo.url = `/media/photos/${photo.filename}`;
             res.status(200).send(photo)
         } else {
             next()

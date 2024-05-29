@@ -4,7 +4,7 @@ const morgan = require('morgan')
 const api = require('./api')
 const { connectToDb } = require('./lib/mongo')
 const { createConsumer } = require('./lib/rabbit')
-const { getPhotoDownloadStreamByFilename } = require('./models/photo')
+const { getPhotoDownloadStreamByFilename, getThumbDownloadStreamByFilename } = require('./models/photo')
 const app = express()
 const port = process.env.PORT || 8000
 
@@ -16,6 +16,18 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.get('/media/photos/:filename', (req, res, next) => {
     getPhotoDownloadStreamByFilename(req.params.filename).on('file', (file) => {
+        res.status(200).type(file.metadata.contentType);
+    }).on('error', (err) => {
+        if (err.code === 'ENOENT') {
+            next();
+        } else {
+            next(err);
+        }
+    }).pipe(res);
+});
+
+app.get('/media/thumbs/:filename', (req, res, next) => {
+    getThumbDownloadStreamByFilename(req.params.filename).on('file', (file) => {
         res.status(200).type(file.metadata.contentType);
     }).on('error', (err) => {
         if (err.code === 'ENOENT') {
