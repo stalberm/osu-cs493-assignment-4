@@ -13,6 +13,12 @@ const port = process.env.PORT || 8000
 app.use(morgan('dev'))
 
 app.use(express.json())
+
+/*
+ * Resolves the filename of the original image given a photo's id.
+ * Given the filename, creates a download stream and pipes the data as the response to requests.
+*/
+
 app.get('/media/photos/:id', async (req, res, next) => {
     const downloadStream = await getPhotoDownloadStreamById(req.params.id)
     downloadStream.on('file', (file) => {
@@ -25,6 +31,11 @@ app.get('/media/photos/:id', async (req, res, next) => {
         }
     }).pipe(res);
 });
+
+/*
+ * Resolves the filename of the thumbnail image given a photo's id.
+ * Given the filename, creates a download stream and pipes the data as the response to requests.
+*/
 
 app.get('/media/thumbs/:id',  async (req, res, next) => {
     const downloadStream = await getThumbDownloadStreamById(req.params.id);
