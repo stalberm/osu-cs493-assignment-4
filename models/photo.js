@@ -70,6 +70,10 @@ exports.getPhotoDownloadStreamByFilename = getPhotoDownloadStreamByFilename;
 
 */
 function getThumbDownloadStreamByFilename(filename) {
+    var parts = filename.split('.');
+    if (parts.length > 1 && parts[parts.length - 1] !== 'jpg') {
+        filename = parts.slice(0, -1).join('.') + '.jpg';
+    }
     const db = getDbReference();
     const bucket =
         new GridFSBucket(db, { bucketName: 'thumbs' });
