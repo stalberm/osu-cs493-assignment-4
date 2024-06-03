@@ -77,7 +77,7 @@ describe("/photos", () => {
   });
 
   test("GET media/thumbs/{id} should respond with 200 status code and jpeg image type", async () => {
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     try {
       const response = await axios.get(
         `http://localhost:8000/media/thumbs/${photoId}`

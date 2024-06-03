@@ -110,7 +110,6 @@ router.get("/:id", async (req, res, next) => {
       delete photo.path;
       photo.url = `/media/photos/${photo._id}`;
       photo.thumbnailUrl = `/media/thumbs/${photo._id}`;
-      photo.length = photo.length;
       res.status(200).send(photo);
     } else {
       next();
