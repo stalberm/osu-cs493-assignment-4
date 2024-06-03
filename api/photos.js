@@ -76,19 +76,13 @@ router.post("/", upload.single("image"), async (req, res, next) => {
       }, 500);
 
       await _removeUploadedFile(req.file);
-      const parts = photo.filename.split(".");
-      if (parts.length > 1) {
-        parts[parts.length - 1] = "jpg";
-      } else {
-        parts.push("jpg");
-      }
-      const thumb = parts.join(".");
+
       res.status(201).send({
         id: id,
         links: {
           meta: `/photos/${id}`,
-          photoUrl: `/media/photos/${photo.filename}`,
-          thumbnailUrl: `/media/thumbs/${thumb}`,
+          photoUrl: `/media/photos/${id}`,
+          thumbnailUrl: `/media/thumbs/${id}`,
           contentType: photo.contentType,
           business: `/businesses/${req.body.businessId}`,
           thumb: photo.thumbId,
@@ -115,7 +109,7 @@ router.get("/:id", async (req, res, next) => {
     const photo = await getPhotoById(req.params.id);
     if (photo) {
       delete photo.path;
-      photo.url = `/media/photos/${photo.filename}`;
+      photo.url = `/media/photos/${photo._id}`;
       res.status(200).send(photo);
     } else {
       next();
