@@ -55,7 +55,6 @@ function _removeUploadedFile(file) {
  * POST /photos - Route to create a new photo.
  */
 router.post("/", upload.single("image"), async (req, res, next) => {
-  console.log(`FILE RECIEVED ${req.file}`);
   if (req.file && validateAgainstSchema(req.body, PhotoSchema)) {
     try {
       const photo = {
@@ -85,7 +84,7 @@ router.post("/", upload.single("image"), async (req, res, next) => {
           thumbnailUrl: `/media/thumbs/${id}`,
           contentType: photo.contentType,
           business: `/businesses/${req.body.businessId}`,
-          thumb: photo.thumbId,
+          thumb: id,
         },
       });
     } catch (err) {
@@ -110,6 +109,8 @@ router.get("/:id", async (req, res, next) => {
     if (photo) {
       delete photo.path;
       photo.url = `/media/photos/${photo._id}`;
+      photo.thumbnailUrl = `/media/thumbs/${photo._id}`;
+      photo.length = photo.length;
       res.status(200).send(photo);
     } else {
       next();
